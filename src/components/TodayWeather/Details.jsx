@@ -22,6 +22,16 @@ const Details = ({ data }) => {
             <h4 className="text-white text-sm opacity-70">
               {data.weather[0].description}
             </h4>
+            <div className="flex justify-evenly items-center w-full mt-2">
+              <div className="flex flex-col text-white text-sm mt-2">
+                <p>Min</p>
+                <p>{Math.round(data.main.temp_min)} °C </p>
+              </div>
+              <div className="flex flex-col text-white text-sm mt-2">
+                <p>Min</p>
+                <p>{Math.round(data.main.temp_max)} °C </p>
+              </div>
+            </div>
           </div>
           <img
             className="w-20 h-20 md:w-24 md:h-24 mx-auto"

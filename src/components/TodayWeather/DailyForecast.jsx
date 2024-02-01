@@ -9,8 +9,8 @@ const DailyForecast = ({ data, forecastList }) => {
     forecastList.cod === "404";
 
   return (
-    <div className="mt-8">
-      <h2 className="text-2xl font-semibold mb-4">TODAY'S FORECAST</h2>
+    <div className="mt-8 bg-gray-800 p-6 rounded-md shadow-md">
+      <h2 className="text-2xl text-white font-semibold mb-4">TODAY'S FORECAST</h2>
 
       {noDataProvided && (
         <div className="mt-8">
@@ -24,7 +24,7 @@ const DailyForecast = ({ data, forecastList }) => {
             {forecastList.map((item, idx) => (
               <div
                 key={idx}
-                className="bg-gradient-to-t from-opacity-5 via-opacity-5 to-opacity-100 border border-gray-300 rounded-md shadow-md p-4 text-center transition transform hover:scale-105"
+                className="bg-blue-200 text-gray-800 border border-gray-300 rounded-md shadow-md p-4 text-center transition transform hover:scale-105 hover:shadow-lg"
               >
                 <p className="text-sm font-medium">{item.time}</p>
                 <img

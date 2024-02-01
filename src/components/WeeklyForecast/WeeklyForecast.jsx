@@ -25,14 +25,14 @@ const WeeklyForecast = ({ data }) => {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="text-2xl font-bold mb-4">WEEKLY FORECAST</div>
+    <div className="container mt-12 mx-auto p-4 bg-gray-800 p-6 rounded-md shadow-md">
+      <div className="text-2xl text-white font-bold mb-4">WEEKLY FORECAST</div>
 
       <div className="flex flex-col items-center">
         {data.list.map((item, idx) => (
           <div
             key={idx}
-            className="w-full flex items-center justify-evenly p-4 bg-gradient-to-r from-opacity-5 to-opacity-5 shadow-md rounded-md mb-4"
+            className="w-full flex items-center justify-evenly p-4 bg-blue-200 shadow-md rounded-md mb-4"
           >
             <div className="flex flex-col items-start mr-4">
               <div className="text-base font-medium">{forecastDays[idx]}</div>
@@ -48,25 +48,25 @@ const WeeklyForecast = ({ data }) => {
 
             <div className="flex flex-col items-center justify-center">
               <div className="flex items-center mb-2">
-                <MdDeviceThermostat className="text-gray-600" />
+                <MdDeviceThermostat className="text-gray-700 mr-2" />
                 <span className="text-gray-700">
                   {Math.round(item.temp)} °C
                 </span>
               </div>
               <div className="flex items-center">
-                <MdFilterDrama className="text-gray-600" />
+                <MdFilterDrama className="text-gray-700 mr-2" />
                 <span className="text-gray-700">{item.clouds} %</span>
               </div>
             </div>
 
             <div className="flex flex-col items-center justify-center">
               <div className="flex items-center mb-2">
-                <FaWind className="text-green-500" />
-                <span className="text-green-500">{item.wind} m/s</span>
+                <FaWind className="text-gray-700 mr-2" />
+                <span className="text-gray-700">{item.wind} m/s</span>
               </div>
               <div className="flex items-center">
-                <WiHumidity className="text-green-500" />
-                <span className="text-green-500">{item.humidity} %</span>
+                <WiHumidity className="text-gray-700 mr-2" />
+                <span className="text-gray-700">{item.humidity} %</span>
               </div>
             </div>
           </div>
