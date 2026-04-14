@@ -1,3 +1,57 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply min-h-screen overflow-x-hidden;
+  }
+}
+
+@layer utilities {
+  /**
+   * Glassmorphism card — semi-transparent blurred panel.
+   * Uses raw CSS so that backdrop-filter works correctly across browsers.
+   * Apply this class to any card/panel that should float on the gradient background.
+   */
+  .glass {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 1.5rem;
+  }
+
+  /** Stagger helpers for the three animated background blobs */
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  /** Hide scrollbar on all browsers while preserving scroll functionality */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /**
+   * Shimmer gradient used by LoadingSkeleton.
+   * The background-size is wider than the element so the position animation
+   * creates a sweeping highlight effect.
+   */
+  .shimmer-bg {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 0px,
+      rgba(255, 255, 255, 0.09) 40px,
+      rgba(255, 255, 255, 0.03) 80px
+    );
+    background-size: 800px 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+}

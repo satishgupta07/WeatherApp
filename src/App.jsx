@@ -1,129 +1,96 @@
-import React, { useState } from "react";
+/**
+ * @file App.jsx
+ * @description Root application component.
+ *
+ * Responsibilities:
+ *   1. Delegate all state and API logic to the `useWeather` hook.
+ *   2. Derive the current weather condition for the animated background.
+ *   3. Render one of four mutually exclusive content states:
+ *        loading   → LoadingSkeleton
+ *        error     → ErrorMessage
+ *        idle      → WelcomeScreen
+ *        data      → WeatherHero + HourlyForecast + WeeklyForecast + WeatherDetails
+ *
+ * App.jsx is intentionally thin — it handles layout and conditional rendering
+ * only. Business logic lives in the hook; visual logic lives in components.
+ */
+
+import { useWeather } from "./hooks/useWeather";
 import {
-  Error,
-  Loading,
+  AnimatedBackground,
   Search,
-  TodayWeather,
+  WelcomeScreen,
+  LoadingSkeleton,
+  WeatherHero,
+  HourlyForecast,
   WeeklyForecast,
+  WeatherDetails,
+  ErrorMessage,
 } from "./components";
-import { transformDateFormat } from "./utils/DateTime";
-import { getTodayForecastWeather, getWeekForecastWeather } from "./utils/Data";
-import { fetchWeatherData } from "./api";
-import { ALL_DESCRIPTIONS } from "./utils/DateConstants";
 
 function App() {
-  // State variables to manage data, loading state, and errors
-  const [todayWeather, setTodayWeather] = useState(null);
-  const [todayForecast, setTodayForecast] = useState([]);
-  const [weekForecast, setWeekForecast] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const {
+    todayWeather,
+    todayForecast,
+    weekForecast,
+    isLoading,
+    error,
+    handleSearch,
+  } = useWeather();
 
-  // Handler function for search input change
-  const searchChangeHandler = async (enteredData) => {
-    const [latitude, longitude] = enteredData.value.split(" ");
-
-    setIsLoading(true);
-
-    const currentDate = transformDateFormat();
-    const date = new Date();
-    let dt_now = Math.floor(date.getTime() / 1000);
-
-    try {
-      // Fetch weather data using API
-      const [todayWeatherResponse, weekForecastResponse] =
-        await fetchWeatherData(latitude, longitude);
-
-      // Process today's forecast and weekly forecast data
-      const all_today_forecasts_list = getTodayForecastWeather(
-        weekForecastResponse,
-        currentDate,
-        dt_now
-      );
-
-      const all_week_forecasts_list = getWeekForecastWeather(
-        weekForecastResponse,
-        ALL_DESCRIPTIONS
-      );
-
-      // Set state with the fetched and processed data
-      setTodayForecast([...all_today_forecasts_list]);
-      setTodayWeather({ city: enteredData.label, ...todayWeatherResponse });
-      setWeekForecast({
-        city: enteredData.label,
-        list: all_week_forecasts_list,
-      });
-    } catch (error) {
-      console.error("Error fetching weather data:", error);
-      setError(true);
-    }
-
-    setIsLoading(false);
-  };
+  // Derive condition for weather-reactive background (e.g. "Clear", "Rain")
+  const condition = todayWeather?.weather?.[0]?.main;
+  const hasData = Boolean(todayWeather && weekForecast);
 
   return (
-    <div className="container mx-auto p-4 md:p-8 mt-4 mb-4 md:mb-8 border rounded-lg md:shadow-md bg-orange-300">
-      <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-12">
-          <div className="flex items-center mb-4">
-            {/* Logo */}
+    <>
+      {/* Full-screen animated gradient — changes colour with weather condition */}
+      <AnimatedBackground condition={condition} />
+
+      <main className="min-h-screen px-4 py-8 flex flex-col items-center">
+        <div className="w-full max-w-lg space-y-4">
+
+          {/* ── Header ─────────────────────────────────────────────── */}
+          <header className="flex items-center gap-3 pb-1">
             <img
-              className="h-8 md:h-10 lg:h-12"
-              alt="logo"
+              className="h-9 drop-shadow"
+              alt="Weather App logo"
               src="https://res.cloudinary.com/satish07/image/upload/v1706720709/wthg2nxwc71daygwsfgh.png"
             />
-            {/* App title */}
-            <h1 className="mb-4 text-2xl font-extrabold text-gray-900 dark:text-white md:text-2xl lg:text-4xl">
-              <span className="ml-4 text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">
-                Weather App
-              </span>
+            <h1 className="text-xl font-semibold text-white tracking-wide">
+              Weather App
             </h1>
-          </div>
-          {/* Search component */}
-          <Search onSearchChange={searchChangeHandler} />
-        </div>
-        {/* App Content */}
-        {!todayWeather || !todayForecast || !weekForecast ? (
-          <div className="col-span-12 flex items-center justify-center w-full">
-            {/* Placeholder message when data is not available */}
-            <p className="text-2xl font-bold text-sky-600 md:text-3xl lg:text-4xl font-poppins text-center m-8 md:max-w-3xl lg:max-w-4xl">
-              Explore current weather data of you city
-            </p>
-          </div>
-        ) : (
-          <>
-            {/* Today's Weather */}
-            <div className="col-span-12 md:col-span-6">
-              <TodayWeather data={todayWeather} forecastList={todayForecast} />
-            </div>
-            {/* Weekly Forecast */}
-            <div className="col-span-12 md:col-span-6">
+          </header>
+
+          {/* ── Search ─────────────────────────────────────────────── */}
+          <Search onSearchChange={handleSearch} />
+
+          {/* ── Content (mutually exclusive states) ────────────────── */}
+          {isLoading && <LoadingSkeleton />}
+
+          {!isLoading && error && <ErrorMessage message={error} />}
+
+          {!isLoading && !error && !hasData && <WelcomeScreen />}
+
+          {!isLoading && !error && hasData && (
+            <div className="space-y-4">
+              {/* Hero — city, temperature, condition icon */}
+              <WeatherHero data={todayWeather} />
+
+              {/* Hourly strip — upcoming 3-hour slots for today */}
+              <HourlyForecast forecastList={todayForecast} />
+
+              {/* 5-day daily summary */}
               <WeeklyForecast data={weekForecast} />
+
+              {/* Atmospheric metrics grid */}
+              <WeatherDetails data={todayWeather} />
             </div>
-          </>
-        )}
+          )}
 
-        {error && (
-          // Error Component
-          <Error
-            margin="3rem auto"
-            flex="inherit"
-            errorMessage="Something went wrong"
-          />
-        )}
-
-        {isLoading && (
-          // Loading Component
-          <div className="flex items-center justify-center w-full min-h-screen">
-            <Loading value="1">
-              <p className="text-xl md:text-2xl text-white opacity-80 font-poppins">
-                Loading...
-              </p>
-            </Loading>
-          </div>
-        )}
-      </div>
-    </div>
+        </div>
+      </main>
+    </>
   );
 }
 

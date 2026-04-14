@@ -1,91 +1,81 @@
-import React from "react";
-import Error from "../Error";
-import { getWeekDays } from "../../utils/DateTime";
-import { MdDeviceThermostat, MdFilterDrama } from "react-icons/md";
-import { FaWind } from "react-icons/fa";
-import { WiHumidity } from "react-icons/wi";
+/**
+ * @file components/WeeklyForecast/WeeklyForecast.jsx
+ * @description 5-day forecast list rendered as a single glass card.
+ *
+ * Each row shows:
+ *   - 3-letter day abbreviation (derived by rotating today's weekday)
+ *   - OWM condition icon + description (description hidden on very small screens)
+ *   - Daily average temperature, humidity, and wind speed
+ *
+ * Rows are separated by subtle `divide-y` borders. The component returns null
+ * when data is unavailable so the caller can control whether to show an error.
+ */
 
+import { getWeekDays } from "../../utils/DateTime";
+import { WiHumidity } from "react-icons/wi";
+import { FaWind } from "react-icons/fa";
+
+/**
+ * WeeklyForecast — 5-day daily summary card.
+ *
+ * @param {Object} props
+ * @param {Object} props.data - Processed forecast: `{ city, list[] }` where
+ *   each list item is the output of `getWeekForecastWeather`.
+ */
 const WeeklyForecast = ({ data }) => {
   const forecastDays = getWeekDays();
 
-  const noDataProvided =
-    !data ||
-    Object.keys(data).length === 0 ||
-    !data.list ||
-    data.list.length === 0;
-
-  if (noDataProvided) {
-    return (
-      <div className="w-full">
-        <div className="bg-gray-100 p-4 rounded-md">
-          <Error type="error" />
-        </div>
-      </div>
-    );
-  }
+  if (!data?.list?.length) return null;
 
   return (
-    <div className="container mt-12 mx-auto p-4 bg-gray-800 p-6 rounded-md shadow-md">
-      <div className="text-2xl text-white font-bold mb-4">WEEKLY FORECAST</div>
+    <div
+      className="glass p-5 animate-fade-in-up"
+      style={{ animationDelay: "160ms" }}
+    >
+      {/* Section label */}
+      <h3 className="text-white/50 text-xs font-semibold uppercase tracking-widest mb-2">
+        5-Day Forecast
+      </h3>
 
-      <div className="flex flex-col items-center">
+      <div className="divide-y divide-white/10">
         {data.list.map((item, idx) => (
           <div
             key={idx}
-            className="w-full flex items-center justify-evenly p-4 bg-blue-200 shadow-md rounded-md mb-4"
+            className="flex items-center justify-between py-3 text-white"
           >
-            <div className="flex flex-col items-start mr-4">
-              <div className="text-base font-medium">{forecastDays[idx]}</div>
-              <div className="flex items-center">
-                <img
-                  className="w-8 h-auto mr-2"
-                  src={`https://openweathermap.org/img/w/${item.icon}`}
-                  alt="weather"
-                />
-                <div className="text-lg font-medium">{item.description}</div>
-              </div>
+            {/* Day + icon */}
+            <div className="flex items-center gap-2 w-28">
+              <img
+                src={`https://openweathermap.org/img/wn/${item.icon}`}
+                alt={item.description}
+                className="w-8 h-8 flex-shrink-0"
+              />
+              <span className="text-sm font-medium">
+                {forecastDays[idx]?.slice(0, 3)}
+              </span>
             </div>
 
-            <div className="flex flex-col items-center justify-center">
-              <div className="flex items-center mb-2">
-                <MdDeviceThermostat className="text-gray-700 mr-2" />
-                <span className="text-gray-700">
-                  {Math.round(item.temp)} °C
-                </span>
-              </div>
-              <div className="flex items-center">
-                <MdFilterDrama className="text-gray-700 mr-2" />
-                <span className="text-gray-700">{item.clouds} %</span>
-              </div>
-            </div>
+            {/* Condition description — hidden below 'sm' breakpoint */}
+            <span className="hidden sm:block text-xs opacity-45 flex-1 text-center capitalize">
+              {item.description}
+            </span>
 
-            <div className="flex flex-col items-center justify-center">
-              <div className="flex items-center mb-2">
-                <FaWind className="text-gray-700 mr-2" />
-                <span className="text-gray-700">{item.wind} m/s</span>
-              </div>
-              <div className="flex items-center">
-                <WiHumidity className="text-gray-700 mr-2" />
-                <span className="text-gray-700">{item.humidity} %</span>
-              </div>
+            {/* Temp, humidity, wind */}
+            <div className="flex items-center gap-4 text-sm">
+              <span className="font-medium w-12 text-right">
+                {Math.round(item.temp)}°C
+              </span>
+              <span className="flex items-center gap-1 opacity-50 text-xs w-12">
+                <WiHumidity className="text-base" />
+                {item.humidity}%
+              </span>
+              <span className="flex items-center gap-1 opacity-50 text-xs hidden sm:flex">
+                <FaWind className="text-xs" />
+                {item.wind} m/s
+              </span>
             </div>
           </div>
         ))}
-        {data.list.length === 5 && (
-          <div className="w-full flex items-center p-4 bg-gradient-to-r from-opacity-5 to-opacity-5 shadow-md rounded-md mb-4">
-            <div className="flex flex-col items-start mr-4">
-              <div className=" text-base font-medium">{forecastDays[5]}</div>
-              <div className="flex items-center">
-                <img
-                  className="w-8 h-auto mr-2"
-                  src="../../assets/unknown.png"
-                  alt="unknown weather"
-                />
-                <div className="text-lg font-medium">NaN</div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

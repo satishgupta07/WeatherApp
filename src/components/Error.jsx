@@ -1,32 +1,26 @@
-import React from "react";
+/**
+ * @file components/Error.jsx
+ * @description Glass-styled error message panel shown when the weather API
+ * call fails. Renders a soft red warning icon above the message text.
+ */
+
 import { FaExclamationCircle } from "react-icons/fa";
 
-const Error = (props) => {
-  const infoType = props.type === "info";
+/**
+ * ErrorMessage — contextual error banner.
+ *
+ * @param {Object}  props
+ * @param {string} [props.message] - Error text; defaults to a generic fallback.
+ */
+const ErrorMessage = ({
+  message = "Something went wrong. Please try again.",
+}) => (
+  <div className="glass p-6 text-white flex flex-col items-center gap-3 animate-fade-in-up">
+    <FaExclamationCircle className="text-3xl text-red-400 opacity-80" />
+    <p className="text-sm text-white/65 text-center leading-relaxed max-w-xs">
+      {message}
+    </p>
+  </div>
+);
 
-  return (
-    <div
-      className={`flex justify-center items-center ${
-        infoType
-          ? "bg-yellow-100 border-yellow-500 text-yellow-600"
-          : "bg-red-200 border-red-500 text-red-600"
-      } border-1 rounded-md p-4 flex-col ${props.flex || "flex-grow"} ${
-        props.margin || "m-4 auto"
-      }`}
-    >
-      <FaExclamationCircle className="text-xl mr-2" />
-
-      <div className="text-center">
-        <p
-          className={`font-semibold ${
-            infoType ? "text-yellow-700" : "text-red-700"
-          } text-sm md:text-base`}
-        >
-          {props.errorMessage || "Internal error"}
-        </p>
-      </div>
-    </div>
-  );
-};
-
-export default Error;
+export default ErrorMessage;
